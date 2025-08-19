@@ -1,54 +1,45 @@
 import { Router } from 'express';
 import { prisma } from '../db';
 import { createTodoSchema, updateTodoSchema } from '../validators/todo.schema';
+import { Prisma } from '@prisma/client';
 
 const router = Router();
 
-/**
- * GET /api/todos
- * Query params:
- *   q?: string (search by title/description)
- *   completed?: 'true'|'false'
- *   sort?: 'new'|'old'|'title'
- *   page?: number, pageSize?: number
- */
 router.get('/', async (req, res, next) => {
   try {
-    const {
-      q,
-      completed,
-      sort = 'new',
-      page = '1',
-      pageSize = '10'
-    } = req.query as Record<string, string>;
+    const { q, completed, sort = 'new', page = '1', pageSize = '10' } =
+      req.query as Record<string, string>;
 
-    const where: any = {};
+    const where: Prisma.TodoWhereInput = {};
 
     if (completed === 'true') where.isCompleted = true;
     if (completed === 'false') where.isCompleted = false;
 
     if (q && q.trim()) {
       where.OR = [
-        { title: { contains: q, mode: 'insensitive' } },
-        { description: { contains: q, mode: 'insensitive' } }
+        { title: { contains: q } },        // removed mode
+        { description: { contains: q } }   // removed mode
       ];
     }
 
-    const orderBy =
-      sort === 'old'   ? { createdAt: 'asc' } :
-      sort === 'title' ? { title: 'asc' } :
-                         { createdAt: 'desc' };
+    const orderBy: Prisma.TodoOrderByWithRelationInput =
+      sort === 'old'
+        ? { createdAt: 'asc' }
+        : sort === 'title'
+        ? { title: 'asc' }
+        : { createdAt: 'desc' };
 
     const pageNum = Math.max(parseInt(page, 10) || 1, 1);
     const sizeNum = Math.min(Math.max(parseInt(pageSize, 10) || 10, 1), 100);
 
     const [items, total] = await Promise.all([
       prisma.todo.findMany({
-        where, orderBy,
+        where,
+        orderBy,
         skip: (pageNum - 1) * sizeNum,
-        take: sizeNum
+        take: sizeNum,
       }),
-      prisma.todo.count({ where })
+      prisma.todo.count({ where }),
     ]);
 
     res.json({
@@ -57,15 +48,14 @@ router.get('/', async (req, res, next) => {
         page: pageNum,
         pageSize: sizeNum,
         total,
-        totalPages: Math.ceil(total / sizeNum)
-      }
+        totalPages: Math.ceil(total / sizeNum),
+      },
     });
   } catch (err) {
     next(err);
   }
 });
 
-/** GET /api/todos/:id */
 router.get('/:id', async (req, res, next) => {
   try {
     const id = Number(req.params.id);
@@ -77,7 +67,6 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-/** POST /api/todos */
 router.post('/', async (req, res, next) => {
   try {
     const parsed = createTodoSchema.parse(req.body);
@@ -93,14 +82,13 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-/** PATCH /api/todos/:id */
 router.patch('/:id', async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     const parsed = updateTodoSchema.parse(req.body);
     const updated = await prisma.todo.update({
       where: { id },
-      data: parsed
+      data: parsed,
     });
     res.json(updated);
   } catch (err: any) {
@@ -117,7 +105,6 @@ router.patch('/:id', async (req, res, next) => {
   }
 });
 
-/** DELETE /api/todos/:id */
 router.delete('/:id', async (req, res, next) => {
   try {
     const id = Number(req.params.id);
