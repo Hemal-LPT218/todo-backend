@@ -9,10 +9,7 @@ set -e
 cd /var/www/todo
 
 # Kill any old proxy server still running
-if pgrep -f "proxy_server.js" > /dev/null; then
-  echo "Stopping old proxy server..."
-  sudo pkill -f proxy_server.js || true
-fi
+pm2 describe proxy > /dev/null 2>&1 && pm2 delete proxy || true
 
 # Ensure no leftover PM2 process
 pm2 describe todo > /dev/null 2>&1 && pm2 delete todo || true
