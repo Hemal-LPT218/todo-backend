@@ -3,19 +3,25 @@ set -xe
 
 export PATH=$PATH:/usr/bin:/home/ec2-user/.npm-global/bin
 
+#!/bin/bash
+set -e
+
 cd /var/www/todo
 
-# stop proxy server
-pm2 describe proxy > /dev/null 2>&1 && pm2 delete proxy || true
+# Kill any old proxy server still running
+if pgrep -f "proxy_server.js" > /dev/null; then
+  echo "Stopping old proxy server..."
+  sudo pkill -f proxy_server.js || true
+fi
 
-# stop existing app if exists
+# Ensure no leftover PM2 process
 pm2 describe todo > /dev/null 2>&1 && pm2 delete todo || true
 
-# export env vars
+# Load environment variables
 export $(grep -v '^#' .env | xargs)
 
-# make sure PORT matches TG
-export PORT=80
+# Start the real app with PM2
+pm2 start dist/index.js --name todo --watch
 
-# start app
-/usr/bin/pm2 start dist/index.js --name todo --watch
+# Save PM2 so it restarts after reboot
+pm2 save
