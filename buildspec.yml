@@ -12,7 +12,7 @@ phases:
       - echo Building...
       - npm run build
       - mkdir -p deploy
-      - cp -r package.json dist appspec.yml scripts deploy/
+      - cp -r package.json package-lock.json dist appspec.yml scripts deploy/
 artifacts:
   files:
     - deploy/**/*
