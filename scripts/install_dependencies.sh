@@ -1,8 +1,13 @@
 #!/bin/bash
-set -e
-export PATH=$PATH:/usr/bin
+set -xe
+
+export PATH=$PATH:/usr/bin:/home/ec2-user/.npm-global/bin
 
 cd /var/www/todo
 
-# npm ci --production || true
-npm install --only=production
+# Fix permissions
+sudo chown -R ec2-user:ec2-user /var/www/todo
+
+# Install dependencies cleanly
+rm -rf node_modules
+npm install --omit=dev
