@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { createServer } from './server';
 
-const PORT = Number(process.env.PORT || 8080);
+const PORT = Number(process.env.PORT || 80);
 
 const app = createServer();
 app.listen(PORT, () => {
