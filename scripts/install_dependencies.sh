@@ -10,4 +10,4 @@ sudo chown -R ec2-user:ec2-user /var/www/todo
 
 # Install dependencies cleanly
 rm -rf node_modules
-npm install --omit=dev
+npm install
