@@ -4,6 +4,8 @@ export PATH=$PATH:/usr/bin:/home/ec2-user/.npm-global/bin
 
 cd /var/www/todo
 
+npx prisma migrate deploy
+
 # Stop proxy if running
 pm2 describe proxy > /dev/null 2>&1 && pm2 delete proxy || true
 
