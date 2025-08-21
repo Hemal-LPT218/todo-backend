@@ -25,19 +25,6 @@ export function createServer() {
     { flags: "a" } // append mode
   );
 
-  const origLog = console.log;
-  const origErr = console.error;
-
-  console.log = (...args: any[]) => {
-    accessLogStream.write(`[LOG] ${args.map(String).join(" ")}\n`);
-    origLog(...args);
-  };
-
-  console.error = (...args: any[]) => {
-    accessLogStream.write(`[ERROR] ${args.map(String).join(" ")}\n`);
-    origErr(...args);
-  };
-
   // Use morgan to log all HTTP requests to app.log
   app.use(morgan("combined", { stream: accessLogStream }));
   // Also log to console (optional, helps in debugging locally)
