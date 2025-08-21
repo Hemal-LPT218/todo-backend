@@ -1,7 +1,7 @@
 #!/bin/bash
 # set -xe
 
-cd /var/www/todo
+cd /home/ec2-user/app
 
 npx prisma migrate deploy --schema=prisma/schema.prisma
 

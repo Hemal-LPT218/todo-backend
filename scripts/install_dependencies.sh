@@ -3,7 +3,7 @@
 
 # export PATH=$PATH:/usr/bin:/home/ec2-user/.npm-global/bin
 
-cd /var/www/todo
+cd /home/ec2-user/app
 
 # Fix permissions
 # sudo chown -R ec2-user:ec2-user /var/www/todo
