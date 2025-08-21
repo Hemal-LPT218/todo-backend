@@ -1,33 +1,38 @@
-import { Router } from 'express';
-import { prisma } from '../db';
-import { createTodoSchema, updateTodoSchema } from '../validators/todo.schema';
-import { Prisma } from '@prisma/client';
+import { Router } from "express";
+import { prisma } from "../db";
+import { createTodoSchema, updateTodoSchema } from "../validators/todo.schema";
+import { Prisma } from "@prisma/client";
 
 const router = Router();
 
-router.get('/', async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   try {
-    const { q, completed, sort = 'new', page = '1', pageSize = '10' } =
-      req.query as Record<string, string>;
+    const {
+      q,
+      completed,
+      sort = "new",
+      page = "1",
+      pageSize = "10",
+    } = req.query as Record<string, string>;
 
     const where: Prisma.TodoWhereInput = {};
 
-    if (completed === 'true') where.isCompleted = true;
-    if (completed === 'false') where.isCompleted = false;
+    if (completed === "true") where.isCompleted = true;
+    if (completed === "false") where.isCompleted = false;
 
     if (q && q.trim()) {
       where.OR = [
-        { title: { contains: q } },        // removed mode
-        { description: { contains: q } }   // removed mode
+        { title: { contains: q } }, // removed mode
+        { description: { contains: q } }, // removed mode
       ];
     }
 
     const orderBy: Prisma.TodoOrderByWithRelationInput =
-      sort === 'old'
-        ? { createdAt: 'asc' }
-        : sort === 'title'
-        ? { title: 'asc' }
-        : { createdAt: 'desc' };
+      sort === "old"
+        ? { createdAt: "asc" }
+        : sort === "title"
+        ? { title: "asc" }
+        : { createdAt: "desc" };
 
     const pageNum = Math.max(parseInt(page, 10) || 1, 1);
     const sizeNum = Math.min(Math.max(parseInt(pageSize, 10) || 10, 1), 100);
@@ -41,6 +46,11 @@ router.get('/', async (req, res, next) => {
       }),
       prisma.todo.count({ where }),
     ]);
+
+    console.log("items =========================");
+    console.log(items);
+    console.log("total =========================");
+    console.log(total);
 
     res.json({
       data: items,
@@ -56,33 +66,39 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get("/:id", async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     const todo = await prisma.todo.findUnique({ where: { id } });
-    if (!todo) return res.status(404).json({ error: 'Not found' });
+    if (!todo) return res.status(404).json({ error: "Not found" });
     res.json(todo);
   } catch (err) {
     next(err);
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post("/", async (req, res, next) => {
   try {
+    console.log("req.body =========================");
+    console.log(req.body);
     const parsed = createTodoSchema.parse(req.body);
+    console.log("parsed =========================");
+    console.log(parsed);
     const created = await prisma.todo.create({ data: parsed });
+    console.log("created =========================");
+    console.log(created);
     res.status(201).json(created);
   } catch (err: any) {
-    if (err.name === 'ZodError') {
+    if (err.name === "ZodError") {
       err.status = 400;
-      err.message = 'Validation failed';
+      err.message = "Validation failed";
       err.details = err.issues;
     }
     next(err);
   }
 });
 
-router.patch('/:id', async (req, res, next) => {
+router.patch("/:id", async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     const parsed = updateTodoSchema.parse(req.body);
@@ -92,28 +108,28 @@ router.patch('/:id', async (req, res, next) => {
     });
     res.json(updated);
   } catch (err: any) {
-    if (err.code === 'P2025') {
+    if (err.code === "P2025") {
       err.status = 404;
-      err.message = 'Not found';
+      err.message = "Not found";
     }
-    if (err.name === 'ZodError') {
+    if (err.name === "ZodError") {
       err.status = 400;
-      err.message = 'Validation failed';
+      err.message = "Validation failed";
       err.details = err.issues;
     }
     next(err);
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete("/:id", async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     await prisma.todo.delete({ where: { id } });
     res.status(204).send();
   } catch (err: any) {
-    if (err.code === 'P2025') {
+    if (err.code === "P2025") {
       err.status = 404;
-      err.message = 'Not found';
+      err.message = "Not found";
     }
     next(err);
   }
