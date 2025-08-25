@@ -59,6 +59,7 @@ router.get("/", async (req, res, next) => {
         pageSize: sizeNum,
         total,
         totalPages: Math.ceil(total / sizeNum),
+        isUpdated: true,
       },
     });
   } catch (err) {

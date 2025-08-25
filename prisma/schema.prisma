@@ -18,8 +18,3 @@ model Todo {
   @@index([isCompleted])
   @@index([createdAt])
 }
-
-model Test {
-  id    Int    @id @default(autoincrement())
-  title String
-}
