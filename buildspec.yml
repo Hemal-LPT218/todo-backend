@@ -31,11 +31,11 @@ phases:
                 group: ec2-user
                 mode: 755
             hooks:
-              BeforeInstall:
+              AfterInstall:
                 - location: scripts/install_dependencies.sh
                   timeout: 300
                   runas: ec2-user
-              AfterInstall:
+              ApplicationStart:
                 - location: scripts/env_variables.sh
                   timeout: 300
                   runas: ec2-user
@@ -46,7 +46,6 @@ phases:
                       DBEndpoint: "${DBEndpoint}"
                       DBName: "${DBName}"
                       PORT: "${PORT}"
-              ApplicationStart:
                 - location: scripts/start_server.sh
                   timeout: 300
                   runas: ec2-user
