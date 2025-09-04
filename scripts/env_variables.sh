@@ -1,0 +1,17 @@
+#!/bin/bash
+
+SECRET_JSON=$(aws secretsmanager get-secret-value \
+    --secret-id "$DBCredentialsSecret" \
+    --query SecretString \
+    --output text \
+    --region "$Region")
+
+DB_USER=$(echo $SECRET_JSON | jq -r .username)
+DB_PASS=$(echo $SECRET_JSON | jq -r .password)
+
+# Create .env for DB testing
+cat <<EOF > /home/ec2-user/app/.env
+    NODE_ENV=development
+    DATABASE_URL=mysql://${DB_USER}:${DB_PASS}@${DBEndpoint}:3306/${DBName}
+    PORT=${PORT}
+EOF
