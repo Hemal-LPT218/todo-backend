@@ -19,36 +19,20 @@ phases:
     commands:
       - echo "=== Build complete ==="
       - |
-        cat > deploy/appspec.yml <<EOF
-            version: 0.0
-            os: linux
-            files:
-              - source: /
-                destination: /home/ec2-user/app
-            permissions:
-              - object: /home/ec2-user/app
-                owner: ec2-user
-                group: ec2-user
-                mode: 755
-            hooks:
-              AfterInstall:
-                - location: scripts/install_dependencies.sh
-                  timeout: 300
-                  runas: ec2-user
-              ApplicationStart:
-                - location: scripts/env_variables.sh
-                  timeout: 300
-                  runas: ec2-user
-                  env:
-                    variables:
-                      DBCredentialsSecret: "${DBCredentialsSecret}"
-                      Region: "${Region}"
-                      DBEndpoint: "${DBEndpoint}"
-                      DBName: "${DBName}"
-                      PORT: "${PORT}"
-                - location: scripts/start_server.sh
-                  timeout: 300
-                  runas: ec2-user
+        SECRET_JSON=$(aws secretsmanager get-secret-value \
+            --secret-id "$DBCredentialsSecret" \
+            --query SecretString \
+            --output text \
+            --region "$Region")
+
+        DB_USER=$(echo $SECRET_JSON | jq -r .username)
+        DB_PASS=$(echo $SECRET_JSON | jq -r .password)
+
+        # Create .env for DB testing
+        cat <<EOF > deploy/.env
+            NODE_ENV=development
+            DATABASE_URL=mysql://$DB_USER:$DB_PASS@$DBEndpoint:3306/$DBName
+            PORT=$PORT
         EOF
 
 artifacts:
