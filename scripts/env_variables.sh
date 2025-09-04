@@ -12,6 +12,6 @@ DB_PASS=$(echo $SECRET_JSON | jq -r .password)
 # Create .env for DB testing
 cat <<EOF > /home/ec2-user/app/.env
     NODE_ENV=development
-    DATABASE_URL=mysql://${DB_USER}:${DB_PASS}@${DBEndpoint}:3306/${DBName}
-    PORT=${PORT}
+    DATABASE_URL=mysql://$DB_USER:$DB_PASS@$DBEndpoint:3306/$DBName
+    PORT=$PORT
 EOF
