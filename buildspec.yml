@@ -18,12 +18,6 @@ phases:
   post_build:
     commands:
       - echo "=== Build complete ==="
-      - echo "=== Debugging Env Vars ==="
-      - echo "DBCredentialsSecret=$DBCredentialsSecret"
-      - echo "Region=$Region"
-      - echo "DBEndpoint=$DBEndpoint"
-      - echo "DBName=$DBName"
-      - echo "PORT=$PORT"
       - |
         SECRET_JSON=$(aws secretsmanager get-secret-value \
             --secret-id "$DBCredentialsSecret" \
@@ -40,9 +34,6 @@ phases:
         DATABASE_URL=mysql://$DB_USER:$DB_PASS@$DBEndpoint:3306/$DBName
         PORT=$PORT
         EOF
-
-      - echo "=== Debugging Env Vars ==="
-      - cat deploy/.env
 
 artifacts:
   files:
