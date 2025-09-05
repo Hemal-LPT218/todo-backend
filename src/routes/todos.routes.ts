@@ -2,7 +2,7 @@ import { Router } from "express";
 import { prisma } from "../db";
 import { createTodoSchema, updateTodoSchema } from "../validators/todo.schema";
 import { Prisma } from "@prisma/client";
-import "dotenv/config";
+// import "dotenv/config";
 
 const router = Router();
 
@@ -62,7 +62,7 @@ router.get("/", async (req, res, next) => {
         totalPages: Math.ceil(total / sizeNum),
         isUpdated: true,
       },
-      newsecret: process.env.NEWSECRET || "null",
+      // newsecret: process.env.NEWSECRET || "null",
     });
   } catch (err) {
     next(err);
