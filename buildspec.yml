@@ -27,12 +27,14 @@ phases:
 
         DB_USER=$(echo $SECRET_JSON | jq -r .username)
         DB_PASS=$(echo $SECRET_JSON | jq -r .password)
+        NEWSECRET=$(echo $SECRET_JSON | jq -r .newsecret)
 
         # Create .env for DB testing
         cat > deploy/.env <<EOF
         NODE_ENV=development
         DATABASE_URL=mysql://$DB_USER:$DB_PASS@$DBEndpoint:3306/$DBName
         PORT=$PORT
+        NEWSECRET=$NEWSECRET
         EOF
 
 artifacts:
