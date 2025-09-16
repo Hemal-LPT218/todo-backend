@@ -14,7 +14,7 @@ phases:
       - echo "=== Building TypeScript ==="
       - npm run build
       - mkdir -p deploy
-      - cp -r package.json package-lock.json dist appspec.yml scripts prisma deploy/
+      - cp -r package.json package-lock.json dist appspec.yml Procfile scripts prisma deploy/
   post_build:
     commands:
       - echo "=== Build complete ==="
